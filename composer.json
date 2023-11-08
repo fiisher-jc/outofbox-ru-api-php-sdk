@@ -3,6 +3,7 @@
     "description": "Outofbox.ru API PHP SDK",
     "keywords": ["outofbox","outofbox.ru","api","sdk"],
     "type": "library",
+    "minimum-stability": "stable",
     "license": "MIT",
     "require": {
         "psr/log": "*",
