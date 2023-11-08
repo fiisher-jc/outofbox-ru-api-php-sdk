@@ -2,6 +2,8 @@
 
 namespace Outofbox\OutofboxSDK\Model;
 
+#[\AllowDynamicProperties]
+
 class Product
 {
     const STATUS_NORMAL = 'normal';

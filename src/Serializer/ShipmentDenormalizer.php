@@ -38,4 +38,11 @@ class ShipmentDenormalizer extends ObjectNormalizer
     {
         return $type === Shipment::class;
     }
+
+    public function getSupportedTypes(?string $format): array {
+        return [
+            Shipment::class => TRUE,
+        ];
+    }
+
 }

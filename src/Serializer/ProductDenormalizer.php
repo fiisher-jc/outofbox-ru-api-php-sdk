@@ -51,4 +51,10 @@ class ProductDenormalizer extends ObjectNormalizer
     {
         return $type === Product::class;
     }
+
+    public function getSupportedTypes(?string $format): array {
+        return [
+              Product::class => TRUE,
+            ];
+    }
 }

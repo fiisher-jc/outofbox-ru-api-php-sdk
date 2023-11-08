@@ -58,4 +58,13 @@ class ShopOrderDenormalizer extends ObjectNormalizer implements DenormalizerAwar
     {
         return $type === ShopOrder::class;
     }
+
+
+    public function getSupportedTypes(?string $format): array {
+        return [
+            ShopOrder::class => TRUE,
+        ];
+    }
+
+
 }
