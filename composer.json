@@ -1,5 +1,5 @@
 {
-    "name": "justcommunication-ru/outofbox-ru-api-php-sdk",
+    "name": "fiisher/outofbox-ru-api-php-sdk",
     "description": "Outofbox.ru API PHP SDK",
     "keywords": ["outofbox","outofbox.ru","api","sdk"],
     "type": "library",
