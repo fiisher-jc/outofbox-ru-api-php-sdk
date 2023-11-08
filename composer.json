@@ -4,6 +4,7 @@
     "keywords": ["outofbox","outofbox.ru","api","sdk"],
     "type": "library",
     "license": "MIT",
+    "minimum-stability": "stable",
     "require": {
         "psr/log": "*",
         "guzzlehttp/guzzle": "^6.2|^7.0",
