@@ -1,8 +1,9 @@
 {
-    "name": "justcommunication-ru/outofbox-ru-api-php-sdk",
+    "name": "fiisher-jc/outofbox-ru-api-php-sdk",
     "description": "Outofbox.ru API PHP SDK",
     "keywords": ["outofbox","outofbox.ru","api","sdk"],
     "type": "library",
+    "minimum-stability": "stable",
     "license": "MIT",
     "minimum-stability": "stable",
     "require": {
