@@ -13,6 +13,7 @@ use Outofbox\OutofboxSDK\Exception\OutofboxAPIException;
 use Outofbox\OutofboxSDK\Serializer\ProductDenormalizer;
 use Outofbox\OutofboxSDK\Serializer\ShipmentDenormalizer;
 use Outofbox\OutofboxSDK\Serializer\ShopOrderDenormalizer;
+use PHPUnit\Exception;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
@@ -224,6 +225,10 @@ class OutofboxAPIClient implements LoggerAwareInterface
         } catch (RuntimeException $e) {
             $this->logger->debug('Unable to decode response: ' . $e->getMessage());
             throw new OutofboxAPIException('Unable to decode response: ' . $e->getMessage());
+        }
+        catch (\Exception $exception){
+            $this->logger->debug('Unable to decode response due errors: ' . $exception->getMessage());
+            $this->logger->debug('Unable to decode response due errors: ' . $exception->getMessage());
         }
 
         $this->logger->debug('API RESPONSE 5');
