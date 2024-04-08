@@ -2,18 +2,26 @@
 
 namespace Outofbox\OutofboxSDK\Serializer;
 
+use AllowDynamicProperties;
 use Outofbox\OutofboxSDK\Model\Image;
 use Outofbox\OutofboxSDK\Model\Product;
+use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class ProductDenormalizer extends ObjectNormalizer
+#[AllowDynamicProperties]
+//class ProductDenormalizer extends ObjectNormalizer
+class ProductDenormalizer implements DenormalizerAwareInterface, DenormalizerInterface
 {
+    use DenormalizerAwareTrait;
     /**
      * @inheritDoc
      */
-    public function denormalize($data, $type, $format = null, array $context = [])
+    public function denormalize($data, $type, $format = null, array $context = []): mixed
     {
         /** @var Product $product */
+        //$product = parent::denormalize($data, $type, $format, $context);
         $product = parent::denormalize($data, $type, $format, $context);
 
         foreach ($data['fields_names'] as $field_title => $field_name) {
@@ -45,16 +53,21 @@ class ProductDenormalizer extends ObjectNormalizer
     }
 
     /**
+     * @param mixed $data
+     * @param string $type
+     * @param null $format
+     * @param array $context
      * @inheritDoc
      */
-    public function supportsDenormalization($data, $type, $format = null)
+    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
     {
         return $type === Product::class;
     }
 
-    public function getSupportedTypes(?string $format): array {
+    public function getSupportedTypes(?string $format): array
+    {
         return [
-              Product::class => TRUE,
+              Product::class => true,
             ];
     }
 }

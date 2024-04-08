@@ -2,19 +2,27 @@
 
 namespace Outofbox\OutofboxSDK\Serializer;
 
+use AllowDynamicProperties;
 use Outofbox\OutofboxSDK\Model\Shipment;
 use Outofbox\OutofboxSDK\Model\ShipmentState;
+use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class ShipmentDenormalizer extends ObjectNormalizer
+#[AllowDynamicProperties]
+//class ShipmentDenormalizer extends ObjectNormalizer
+class ShipmentDenormalizer implements DenormalizerAwareInterface, DenormalizerInterface
 {
+    use DenormalizerAwareTrait;
     /**
      * @inheritDoc
      */
-    public function denormalize($data, $type, $format = null, array $context = [])
+    public function denormalize($data, $type, $format = null, array $context = []): mixed
     {
         /** @var Shipment $shipment */
-        $shipment = parent::denormalize($data, $type, $format, $context);
+        //$shipment = parent::denormalize($data, $type, $format, $context);
+        $shipment = $this->denormalizer->denormalize($data, $type, $format, $context);
 
         if (isset($data['current_state'])) {
             $state = new ShipmentState();
@@ -32,16 +40,21 @@ class ShipmentDenormalizer extends ObjectNormalizer
     }
 
     /**
+     * @param mixed $data
+     * @param string $type
+     * @param null $format
+     * @param array $context
      * @inheritDoc
      */
-    public function supportsDenormalization($data, $type, $format = null)
+    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
     {
         return $type === Shipment::class;
     }
 
-    public function getSupportedTypes(?string $format): array {
+    public function getSupportedTypes(?string $format): array
+    {
         return [
-            Shipment::class => TRUE,
+            Shipment::class => true,
         ];
     }
 

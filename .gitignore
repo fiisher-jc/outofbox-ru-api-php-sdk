@@ -3,3 +3,5 @@ composer.phar
 
 .idea
 .phpcs-cache
+phpcs.xml
+phpstan.neon

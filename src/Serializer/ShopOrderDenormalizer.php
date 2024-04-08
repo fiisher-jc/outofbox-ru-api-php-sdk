@@ -2,24 +2,27 @@
 
 namespace Outofbox\OutofboxSDK\Serializer;
 
+use AllowDynamicProperties;
 use Outofbox\OutofboxSDK\Model\DictionaryValue;
 use Outofbox\OutofboxSDK\Model\ShopOrder;
 use Outofbox\OutofboxSDK\Model\ShopOrderItem;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-class ShopOrderDenormalizer extends ObjectNormalizer implements DenormalizerAwareInterface
+#[AllowDynamicProperties]
+class ShopOrderDenormalizer implements DenormalizerAwareInterface, DenormalizerInterface
 {
     use DenormalizerAwareTrait;
 
     /**
      * @inheritDoc
      */
-    public function denormalize($data, $type, $format = null, array $context = [])
+    public function denormalize($data, $type, $format = null, array $context = []): mixed
     {
         /** @var ShopOrder $shopOrder */
-        $shopOrder = parent::denormalize($data, $type, $format, $context);
+        //$shopOrder = parent::denormalize($data, $type, $format, $context);
+        $shopOrder = $this->denormalizer->denormalize($data, $type, $format, $context);
 
         if (isset($data['delivery_method'])) {
             $dictionaryValue = new DictionaryValue();
@@ -52,17 +55,22 @@ class ShopOrderDenormalizer extends ObjectNormalizer implements DenormalizerAwar
     }
 
     /**
+     * @param mixed $data
+     * @param string $type
+     * @param null $format
+     * @param array $context
      * @inheritDoc
      */
-    public function supportsDenormalization($data, $type, $format = null)
+    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
     {
         return $type === ShopOrder::class;
     }
 
 
-    public function getSupportedTypes(?string $format): array {
+    public function getSupportedTypes(?string $format): array
+    {
         return [
-            ShopOrder::class => TRUE,
+            ShopOrder::class => true,
         ];
     }
 
