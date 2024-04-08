@@ -29,12 +29,18 @@ class ProductDenormalizer implements DenormalizerAwareInterface, DenormalizerInt
         //$product = parent::denormalize($data, $type, $format, $context);
         $this->logger?->debug('ProductDenormalizer: start dernomalize');
         $product = $this->denormalizer->denormalize($data, $type, $format, $context);
+        $this->logger?->debug('ProductDenormalizer: after dernomalize - 0');
 
         foreach ($data['fields_names'] as $field_title => $field_name) {
             $product->{$field_name} = $data[$field_name];
         }
 
+        $this->logger?->debug('ProductDenormalizer: after dernomalize - 1');
+
         $images = $product->getImages();
+
+        $this->logger?->debug('ProductDenormalizer: after dernomalize - 2');
+
         $images_objects = [];
         foreach ($images as $image_data) {
             if ($image_data instanceof Image) {
@@ -50,10 +56,15 @@ class ProductDenormalizer implements DenormalizerAwareInterface, DenormalizerInt
             }
         }
 
+        $this->logger?->debug('ProductDenormalizer: after dernomalize - 3');
+
+
         $product
             ->setCreatedAt(new \DateTime($data['created_at']))
             ->setImages($images_objects)
         ;
+
+        $this->logger?->debug('ProductDenormalizer: after dernomalize - 4');
 
         return $product;
     }
