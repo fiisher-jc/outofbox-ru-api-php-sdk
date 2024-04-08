@@ -22,7 +22,7 @@ class ProductDenormalizer implements DenormalizerAwareInterface, DenormalizerInt
     {
         /** @var Product $product */
         //$product = parent::denormalize($data, $type, $format, $context);
-        $product = parent::denormalize($data, $type, $format, $context);
+        $product = $this->denormalizer->denormalize($data, $type, $format, $context);
 
         foreach ($data['fields_names'] as $field_title => $field_name) {
             $product->{$field_name} = $data[$field_name];
