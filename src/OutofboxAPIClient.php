@@ -16,6 +16,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
+use Symfony\Component\Serializer\Exception\RuntimeException;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -127,7 +128,7 @@ class OutofboxAPIClient implements LoggerAwareInterface
         if (0 === \strpos($name, 'send')) {
             return call_user_func_array([$this, 'sendRequest'], $arguments);
         }
-
+        $this->logger->debug(\sprintf('Method [%s] not found in [%s].', $name, __CLASS__));
         throw new \BadMethodCallException(\sprintf('Method [%s] not found in [%s].', $name, __CLASS__));
     }
 
@@ -144,7 +145,6 @@ class OutofboxAPIClient implements LoggerAwareInterface
             $response = $this->createAPIRequestPromise($request)->wait();
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
             self::handleErrorResponse($e->getResponse(), $this->logger);
-
             throw new OutofboxAPIException('Outofbox API Request error: ' . $e->getMessage());
         }
 
@@ -202,17 +202,20 @@ class OutofboxAPIClient implements LoggerAwareInterface
         $response_data = json_decode($response_string, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger->debug('Invalid response data');
             throw new OutofboxAPIException('Invalid response data');
         }
 
         if (isset($response_data['code'], $response_data['message'])) {
+            $this->logger->debug('Outofbox API Error: ' . $response_data['message'], $response_data['code']);
             throw new OutofboxAPIException('Outofbox API Error: ' . $response_data['message'], $response_data['code']);
         }
 
         try {
             /** @var ResponseInterface $response */
             $response = $this->serializer->denormalize($response_data, $apiResponseClass);
-        } catch (\Symfony\Component\Serializer\Exception\RuntimeException $e) {
+        } catch (RuntimeException $e) {
+            $this->logger->debug('Unable to decode response: ' . $e->getMessage());
             throw new OutofboxAPIException('Unable to decode response: ' . $e->getMessage());
         }
 
@@ -235,6 +238,7 @@ class OutofboxAPIClient implements LoggerAwareInterface
             $response_data = json_decode($response_string, true);
 
             if (json_last_error() !== JSON_ERROR_NONE) {
+                $logger?->debug('Unable to decode error response data. Error: ' . json_last_error_msg());
                 throw new OutofboxAPIException('Unable to decode error response data. Error: ' . json_last_error_msg());
             }
 
@@ -244,7 +248,7 @@ class OutofboxAPIClient implements LoggerAwareInterface
                 if (isset($response_data['error']['code'])) {
                     $exception->setErrorCode($response_data['error']['code']);
                 }
-
+                $logger?->debug($exception->getMessage());
                 throw $exception;
             }
         }
