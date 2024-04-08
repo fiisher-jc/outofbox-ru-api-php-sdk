@@ -5,6 +5,7 @@ namespace Outofbox\OutofboxSDK;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Psr7\Response;
+use LogicException;
 use Outofbox\OutofboxSDK\API\AuthTokenRequest;
 use Outofbox\OutofboxSDK\API\RequestInterface;
 use Outofbox\OutofboxSDK\API\ResponseInterface;
@@ -226,10 +227,16 @@ class OutofboxAPIClient implements LoggerAwareInterface
             $this->logger->debug('Unable to decode response: ' . $e->getMessage());
             throw new OutofboxAPIException('Unable to decode response: ' . $e->getMessage());
         }
-        catch (\Exception $exception){
-            $this->logger->debug('Unable to decode response due errors: ' . $exception->getMessage());
+        catch(LogicException $exception ){
+            $this->logger->debug('Unable to decode response due logick errors: ' . $exception->getMessage());
+        }
+        catch (\Exception $exception) {
             $this->logger->debug('Unable to decode response due errors: ' . $exception->getMessage());
         }
+        catch(\Throwable $exception){
+            $this->logger->debug('Unable to decode response due errors2: ' . $exception->getMessage());
+        }
+
 
         $this->logger->debug('API RESPONSE 5');
         return $response;
