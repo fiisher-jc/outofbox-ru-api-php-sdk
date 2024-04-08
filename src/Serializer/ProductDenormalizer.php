@@ -28,7 +28,12 @@ class ProductDenormalizer implements DenormalizerAwareInterface, DenormalizerInt
         /** @var Product $product */
         //$product = parent::denormalize($data, $type, $format, $context);
         $this->logger?->debug('ProductDenormalizer: start dernomalize');
-        $product = $this->denormalizer->denormalize($data, $type, $format, $context);
+        try {
+            $product = $this->denormalizer->denormalize($data, $type, $format, $context);
+        }catch(\Throwable $exception){
+            $this->logger?->debug('ProductDenormalizer: denormalize error: '.$exception->getMessage());
+        }
+
         $this->logger?->debug('ProductDenormalizer: after dernomalize - 0');
 
         foreach ($data['fields_names'] as $field_title => $field_name) {
