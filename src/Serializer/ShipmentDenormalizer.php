@@ -14,7 +14,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 #[AllowDynamicProperties]
 //class ShipmentDenormalizer extends ObjectNormalizer
-class ShipmentDenormalizer implements DenormalizerAwareInterface, DenormalizerInterface, LoggerAwareInterface
+class ShipmentDenormalizer implements  DenormalizerInterface, DenormalizerAwareInterface, LoggerAwareInterface
 {
     use DenormalizerAwareTrait;
     use LoggerAwareTrait;

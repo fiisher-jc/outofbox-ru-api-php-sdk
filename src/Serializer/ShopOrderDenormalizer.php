@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
 
 #[AllowDynamicProperties]
-class ShopOrderDenormalizer implements DenormalizerAwareInterface, DenormalizerInterface, LoggerAwareInterface
+class ShopOrderDenormalizer implements DenormalizerInterface, DenormalizerAwareInterface, LoggerAwareInterface
 {
     use DenormalizerAwareTrait;
     use LoggerAwareTrait;
