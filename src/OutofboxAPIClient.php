@@ -83,6 +83,11 @@ class OutofboxAPIClient implements LoggerAwareInterface
      * @param string $token
      * @param Client|array|null $httpClientOrOptions
      */
+
+    private $productDenormalizer;
+    private $shopOrderDenormalizer;
+    private $shipmentDenormalizer;
+
     public function __construct($base_uri, $username, $token, $httpClientOrOptions = null)
     {
         $this->base_uri = $base_uri;
@@ -93,10 +98,15 @@ class OutofboxAPIClient implements LoggerAwareInterface
 
         $this->logger = new NullLogger();
 
+
+        $this->shipmentDenormalizer = new ShipmentDenormalizer();
+        $this->productDenormalizer = new ProductDenormalizer();
+        $this->shopOrderDenormalizer = new ShopOrderDenormalizer();
+
         $this->serializer = new Serializer([
-            new ProductDenormalizer(),
-            new ShipmentDenormalizer(),
-            new ShopOrderDenormalizer(),
+            $this->productDenormalizer,
+            $this->shipmentDenormalizer,
+            $this->shopOrderDenormalizer,
             new ArrayDenormalizer(),
             new ObjectNormalizer(null, null, null, new PhpDocExtractor())
         ]);
@@ -222,6 +232,11 @@ class OutofboxAPIClient implements LoggerAwareInterface
 
         try {
             /** @var ResponseInterface $response */
+
+            $this->shipmentDenormalizer->setLogger($this->logger);
+            $this->productDenormalizer->setLogger($this->logger);
+            $this->shopOrderDenormalizer->setLogger($this->logger);
+
             $response = $this->serializer->denormalize($response_data, $apiResponseClass);
         } catch (RuntimeException $e) {
             $this->logger->debug('Unable to decode response: ' . $e->getMessage());

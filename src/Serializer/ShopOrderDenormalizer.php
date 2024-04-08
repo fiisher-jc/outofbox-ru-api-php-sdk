@@ -6,15 +6,17 @@ use AllowDynamicProperties;
 use Outofbox\OutofboxSDK\Model\DictionaryValue;
 use Outofbox\OutofboxSDK\Model\ShopOrder;
 use Outofbox\OutofboxSDK\Model\ShopOrderItem;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
 
 #[AllowDynamicProperties]
-class ShopOrderDenormalizer implements DenormalizerAwareInterface, DenormalizerInterface
+class ShopOrderDenormalizer implements DenormalizerAwareInterface, DenormalizerInterface, LoggerAwareInterface
 {
     use DenormalizerAwareTrait;
-
+    use LoggerAwareTrait;
     /**
      * @inheritDoc
      */
@@ -22,6 +24,7 @@ class ShopOrderDenormalizer implements DenormalizerAwareInterface, DenormalizerI
     {
         /** @var ShopOrder $shopOrder */
         //$shopOrder = parent::denormalize($data, $type, $format, $context);
+        $this->logger?->debug('ShopOrderDenormalizer: start dernomalize');
         $shopOrder = $this->denormalizer->denormalize($data, $type, $format, $context);
 
         if (isset($data['delivery_method'])) {

@@ -5,6 +5,8 @@ namespace Outofbox\OutofboxSDK\Serializer;
 use AllowDynamicProperties;
 use Outofbox\OutofboxSDK\Model\Image;
 use Outofbox\OutofboxSDK\Model\Product;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -12,16 +14,20 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 #[AllowDynamicProperties]
 //class ProductDenormalizer extends ObjectNormalizer
-class ProductDenormalizer implements DenormalizerAwareInterface, DenormalizerInterface
+class ProductDenormalizer implements DenormalizerAwareInterface, DenormalizerInterface, LoggerAwareInterface
 {
     use DenormalizerAwareTrait;
+    use LoggerAwareTrait;
+
     /**
      * @inheritDoc
      */
     public function denormalize($data, $type, $format = null, array $context = []): mixed
     {
+
         /** @var Product $product */
         //$product = parent::denormalize($data, $type, $format, $context);
+        $this->logger?->debug('ProductDenormalizer: start dernomalize');
         $product = $this->denormalizer->denormalize($data, $type, $format, $context);
 
         foreach ($data['fields_names'] as $field_title => $field_name) {

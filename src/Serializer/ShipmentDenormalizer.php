@@ -5,6 +5,8 @@ namespace Outofbox\OutofboxSDK\Serializer;
 use AllowDynamicProperties;
 use Outofbox\OutofboxSDK\Model\Shipment;
 use Outofbox\OutofboxSDK\Model\ShipmentState;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -12,9 +14,10 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 #[AllowDynamicProperties]
 //class ShipmentDenormalizer extends ObjectNormalizer
-class ShipmentDenormalizer implements DenormalizerAwareInterface, DenormalizerInterface
+class ShipmentDenormalizer implements DenormalizerAwareInterface, DenormalizerInterface, LoggerAwareInterface
 {
     use DenormalizerAwareTrait;
+    use LoggerAwareTrait;
     /**
      * @inheritDoc
      */
@@ -22,6 +25,7 @@ class ShipmentDenormalizer implements DenormalizerAwareInterface, DenormalizerIn
     {
         /** @var Shipment $shipment */
         //$shipment = parent::denormalize($data, $type, $format, $context);
+        $this->logger?->debug('ShipmentDenormalizer: start dernomalize');
         $shipment = $this->denormalizer->denormalize($data, $type, $format, $context);
 
         if (isset($data['current_state'])) {
