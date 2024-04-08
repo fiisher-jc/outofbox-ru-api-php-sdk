@@ -30,6 +30,7 @@ class ProductDenormalizer implements DenormalizerAwareInterface, DenormalizerInt
         $this->logger?->debug('ProductDenormalizer: start dernomalize');
         try {
             $this->logger?->debug(get_class($this->denormalizer));
+            $this->logger?->debug('data : '. var_export($data, true));
             $product = $this->denormalizer->denormalize($data, $type, $format, $context);
         } catch (\Throwable $exception) {
             $this->logger?->debug('ProductDenormalizer: denormalize error: '.$exception->getMessage());
