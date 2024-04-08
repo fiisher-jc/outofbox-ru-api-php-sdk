@@ -3,6 +3,7 @@
 namespace Outofbox\OutofboxSDK;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Psr7\Response;
 use Outofbox\OutofboxSDK\API\AuthTokenRequest;
 use Outofbox\OutofboxSDK\API\RequestInterface;
@@ -141,9 +142,11 @@ class OutofboxAPIClient implements LoggerAwareInterface
     public function sendRequest(RequestInterface $request)
     {
         try {
+            $this->logger->debug('sendRequest before wait');
             /** @var Response $response */
             $response = $this->createAPIRequestPromise($request)->wait();
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            $this->logger->debug('sendRequest after wait');
+        } catch (BadResponseException $e) {
             self::handleErrorResponse($e->getResponse(), $this->logger);
             throw new OutofboxAPIException('Outofbox API Request error: ' . $e->getMessage());
         }
@@ -198,18 +201,22 @@ class OutofboxAPIClient implements LoggerAwareInterface
      */
     protected function createAPIResponse(\Psr\Http\Message\ResponseInterface $response, $apiResponseClass)
     {
+        $this->logger->debug('API RESPONSE 1');
         $response_string = (string)$response->getBody();
         $response_data = json_decode($response_string, true);
+        $this->logger->debug('API RESPONSE 2');
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->logger->debug('Invalid response data');
             throw new OutofboxAPIException('Invalid response data');
         }
+        $this->logger->debug('API RESPONSE 3');
 
         if (isset($response_data['code'], $response_data['message'])) {
             $this->logger->debug('Outofbox API Error: ' . $response_data['message'], $response_data['code']);
             throw new OutofboxAPIException('Outofbox API Error: ' . $response_data['message'], $response_data['code']);
         }
+        $this->logger->debug('API RESPONSE 4');
 
         try {
             /** @var ResponseInterface $response */
@@ -219,6 +226,7 @@ class OutofboxAPIClient implements LoggerAwareInterface
             throw new OutofboxAPIException('Unable to decode response: ' . $e->getMessage());
         }
 
+        $this->logger->debug('API RESPONSE 5');
         return $response;
     }
 
