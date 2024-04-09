@@ -7,6 +7,7 @@ use Outofbox\OutofboxSDK\Model\Image;
 use Outofbox\OutofboxSDK\Model\Product;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -24,6 +25,7 @@ class ProductDenormalizer implements DenormalizerInterface, DenormalizerAwareInt
      */
     public function denormalize($data, $type, $format = null, array $context = []): mixed
     {
+        $odn = new ObjectNormalizer(null, null, null, new PhpDocExtractor());
 
         /** @var Product $product */
         //$product = parent::denormalize($data, $type, $format, $context);
@@ -31,7 +33,8 @@ class ProductDenormalizer implements DenormalizerInterface, DenormalizerAwareInt
         try {
             $this->logger?->debug(get_class($this->denormalizer));
             $this->logger?->debug('data : '. var_export($data, true));
-            $product = $this->denormalizer->denormalize($data, $type, $format, $context);
+            //$product = $this->denormalizer->denormalize($data, $type, $format, $context);
+            $product = $odn->denormalize($data, $type, $format, $context);
         } catch (\Throwable $exception) {
             $this->logger?->debug('ProductDenormalizer: denormalize error: '.$exception->getMessage());
         }

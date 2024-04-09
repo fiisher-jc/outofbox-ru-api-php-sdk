@@ -104,10 +104,10 @@ class OutofboxAPIClient implements LoggerAwareInterface
         $this->shopOrderDenormalizer = new ShopOrderDenormalizer();
 
         $this->serializer = new Serializer([
-            new ArrayDenormalizer(),
             $this->productDenormalizer,
             $this->shipmentDenormalizer,
             $this->shopOrderDenormalizer,
+            new ArrayDenormalizer(),
             new ObjectNormalizer(null, null, null, new PhpDocExtractor())
 
         ]);
