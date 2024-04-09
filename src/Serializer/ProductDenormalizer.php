@@ -8,6 +8,7 @@ use Outofbox\OutofboxSDK\Model\Product;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
+use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -27,7 +28,7 @@ class ProductDenormalizer implements DenormalizerInterface, DenormalizerAwareInt
      */
     public function denormalize($data, $type, $format = null, array $context = []): mixed
     {
-        $odn = new ObjectNormalizer(null, null, null, new PhpDocExtractor());
+        $odn = new ObjectNormalizer(null, null, null, new ReflectionExtractor());
 
         /** @var Product $product */
         //$product = parent::denormalize($data, $type, $format, $context);
