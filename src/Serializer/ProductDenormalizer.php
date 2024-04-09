@@ -33,14 +33,13 @@ class ProductDenormalizer implements DenormalizerInterface, DenormalizerAwareInt
         //$product = parent::denormalize($data, $type, $format, $context);
         $this->logger?->debug('ProductDenormalizer: start dernomalize');
         try {
-            //$this->logger?->debug(get_class($this->denormalizer));
             $this->logger?->debug('DATA : '. var_export($data, true));
             $this->logger?->debug('TYPE : '. var_export($type, true));
             $this->logger?->debug('FORMAT : '. var_export($format, true));
             $this->logger?->debug('CONTEXT : '. var_export($context, true));
 
             $product = $this->extractObjectToPopulate($type, $context) ?? new $type();
-            $product->denormalize($this->denormalizer,$data, $format, $context);
+            $product->denormalize($this->denormalizer, $data, $format, $context);
             //$product = $this->denormalizer->denormalize($data, $type, $format, $context);
             //$product = $odn->denormalize($data, $type, $format, $context);
         } catch (\Throwable $exception) {
@@ -58,6 +57,7 @@ class ProductDenormalizer implements DenormalizerInterface, DenormalizerAwareInt
         $images = $product->getImages();
 
         $this->logger?->debug('ProductDenormalizer: after dernomalize - 2');
+        $this->logger?->debug(var_export($images, true));
 
         $images_objects = [];
         foreach ($images as $image_data) {
@@ -83,6 +83,8 @@ class ProductDenormalizer implements DenormalizerInterface, DenormalizerAwareInt
         ;
 
         $this->logger?->debug('ProductDenormalizer: after dernomalize - 4');
+        $this->logger?->debug(var_export($product->getImages(), true));
+
 
         return $product;
     }
