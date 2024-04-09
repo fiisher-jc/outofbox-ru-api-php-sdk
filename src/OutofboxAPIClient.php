@@ -4,6 +4,7 @@ namespace Outofbox\OutofboxSDK;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Response;
 use LogicException;
 use Outofbox\OutofboxSDK\API\AuthTokenRequest;
@@ -17,12 +18,14 @@ use Outofbox\OutofboxSDK\Serializer\ShopOrderDenormalizer;
 use PHPUnit\Exception;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\Serializer\Exception\RuntimeException;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Throwable;
 
 /**
  * Class OutofboxAPIClient
@@ -45,50 +48,25 @@ class OutofboxAPIClient implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    protected static $default_http_client_options = [
+    protected static array $default_http_client_options = [
         'connect_timeout' => 4,
         'timeout' => 10
     ];
 
-    /**
-     * @var string
-     */
-    protected $base_uri;
+    protected string $base_uri;
+    protected string $username;
+    protected string $token;
+    protected Client $httpClient;
+    protected Serializer $serializer;
 
-    /**
-     * @var string
-     */
-    protected $username;
-
-    /**
-     * @var string
-     */
-    protected $token;
-
-    /**
-     * @var Client
-     */
-    protected $httpClient;
-
-    /**
-     * @var Serializer
-     */
-    protected $serializer;
+    private ProductDenormalizer $productDenormalizer;
+    private ShopOrderDenormalizer $shopOrderDenormalizer;
+    private ShipmentDenormalizer $shipmentDenormalizer;
 
     /**
      * OutofboxAPIClient constructor.
-     *
-     * @param string $base_uri
-     * @param string $username
-     * @param string $token
-     * @param Client|array|null $httpClientOrOptions
      */
-
-    private $productDenormalizer;
-    private $shopOrderDenormalizer;
-    private $shipmentDenormalizer;
-
-    public function __construct($base_uri, $username, $token, $httpClientOrOptions = null)
+    public function __construct(string $base_uri, string $username, string $token, Client|array|null $httpClientOrOptions = null)
     {
         $this->base_uri = $base_uri;
         $this->username = $username;
@@ -115,31 +93,24 @@ class OutofboxAPIClient implements LoggerAwareInterface
 
     /**
      * Get auth token
-     *
-     * @param string $password
-     * @param Client|array|null $httpClientOrOptions
-     * @return string
      */
-    public function getAuthToken($password, $httpClientOrOptions = null)
+    public function getAuthToken(string $password, array|Client|null $httpClientOrOptions = null): string
     {
         $response = $this->sendAuthTokenRequest(new AuthTokenRequest($this->username, $password));
         return $response->getToken();
     }
 
     /**
-     * @param string $order_number
      * @return Model\ShopOrder
-     *
-     * @throws OutofboxAPIException
      */
-    public function getShopOrder($order_number)
+    public function getShopOrder(string $order_number)
     {
         return $this->sendGetShopOrderRequest(GetShopOrderRequest::createWithShopOrderNumber($order_number))->getShopOrder();
     }
 
     public function __call($name, array $arguments)
     {
-        if (0 === \strpos($name, 'send')) {
+        if (str_starts_with($name, 'send')) {
             return call_user_func_array([$this, 'sendRequest'], $arguments);
         }
         $this->logger->debug(\sprintf('Method [%s] not found in [%s].', $name, __CLASS__));
@@ -147,18 +118,15 @@ class OutofboxAPIClient implements LoggerAwareInterface
     }
 
     /**
-     * @param RequestInterface $request
-     * @return ResponseInterface
-     *
      * @throws OutofboxAPIException
      */
-    public function sendRequest(RequestInterface $request)
+    public function sendRequest(RequestInterface $request): ResponseInterface
     {
         try {
-            $this->logger->debug('sendRequest before wait');
+            //$this->logger->debug('sendRequest before wait');
             /** @var Response $response */
             $response = $this->createAPIRequestPromise($request)->wait();
-            $this->logger->debug('sendRequest after wait');
+            //$this->logger->debug('sendRequest after wait');
         } catch (BadResponseException $e) {
             self::handleErrorResponse($e->getResponse(), $this->logger);
             throw new OutofboxAPIException('Outofbox API Request error: ' . $e->getMessage());
@@ -167,7 +135,7 @@ class OutofboxAPIClient implements LoggerAwareInterface
         return $this->createAPIResponse($response, $request->getResponseClass());
     }
 
-    public function createAPIRequestPromise(RequestInterface $request)
+    public function createAPIRequestPromise(RequestInterface $request):PromiseInterface
     {
         $request_params = $request->createHttpClientParams();
 
@@ -205,14 +173,9 @@ class OutofboxAPIClient implements LoggerAwareInterface
     }
 
     /**
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param string $apiResponseClass
-     *
-     * @return ResponseInterface
-     *
      * @throws OutofboxAPIException
      */
-    protected function createAPIResponse(\Psr\Http\Message\ResponseInterface $response, $apiResponseClass)
+    protected function createAPIResponse(\Psr\Http\Message\ResponseInterface $response, string $apiResponseClass):ResponseInterface
     {
         //$this->logger->debug('API RESPONSE 1');
         $response_string = (string)$response->getBody();
@@ -246,7 +209,7 @@ class OutofboxAPIClient implements LoggerAwareInterface
             $this->logger->debug('Unable to decode response due logick errors: ' . $exception->getMessage());
         } catch (\Exception $exception) {
             $this->logger->debug('Unable to decode response due errors: ' . $exception->getMessage());
-        } catch(\Throwable $exception){
+        } catch(Throwable $exception){
             $this->logger->debug('Unable to decode response due errors2: ' . $exception->getMessage());
         }
 
@@ -256,10 +219,9 @@ class OutofboxAPIClient implements LoggerAwareInterface
     }
 
     /**
-     * @param \Psr\Http\Message\ResponseInterface|null $response
      * @throws OutofboxAPIException
      */
-    protected static function handleErrorResponse(\Psr\Http\Message\ResponseInterface $response = null, \Psr\Log\LoggerInterface $logger = null)
+    protected static function handleErrorResponse(\Psr\Http\Message\ResponseInterface|null $response = null, LoggerInterface $logger = null): void
     {
         if (!$response) {
             return;
@@ -287,7 +249,7 @@ class OutofboxAPIClient implements LoggerAwareInterface
         }
     }
 
-    protected function generateWsseHeader()
+    protected function generateWsseHeader(): string
     {
         $nonce = hash('sha512', uniqid('', true));
         $created = date('c');
@@ -302,29 +264,18 @@ class OutofboxAPIClient implements LoggerAwareInterface
         );
     }
 
-    /**
-     * @param Client $httpClient
-     * @return $this
-     */
-    public function setHttpClient($httpClient)
+    public function setHttpClient(Client $httpClient): self
     {
         $this->httpClient = $httpClient;
         return $this;
     }
 
-    /**
-     * @return Client
-     */
-    public function getHttpClient()
+    public function getHttpClient(): Client
     {
         return $this->httpClient;
     }
 
-    /**
-     * @param Client|array|null $httpClientOrOptions
-     * @return Client
-     */
-    protected static function createHttpClient($httpClientOrOptions = null)
+    protected static function createHttpClient(array|Client|null $httpClientOrOptions = null): Client
     {
         $httpClient = null;
         if ($httpClientOrOptions instanceof Client) {
