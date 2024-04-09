@@ -15,9 +15,8 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 #[AllowDynamicProperties]
 //class ProductDenormalizer extends ObjectNormalizer
-class ProductDenormalizer implements DenormalizerInterface, DenormalizerAwareInterface, LoggerAwareInterface
+class ProductDenormalizer implements DenormalizerInterface, LoggerAwareInterface
 {
-    use DenormalizerAwareTrait;
     use LoggerAwareTrait;
 
     /**
@@ -31,7 +30,7 @@ class ProductDenormalizer implements DenormalizerInterface, DenormalizerAwareInt
         //$product = parent::denormalize($data, $type, $format, $context);
         $this->logger?->debug('ProductDenormalizer: start dernomalize');
         try {
-            $this->logger?->debug(get_class($this->denormalizer));
+            //$this->logger?->debug(get_class($this->denormalizer));
             $this->logger?->debug('data : '. var_export($data, true));
             //$product = $this->denormalizer->denormalize($data, $type, $format, $context);
             $product = $odn->denormalize($data, $type, $format, $context);
