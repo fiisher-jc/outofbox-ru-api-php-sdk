@@ -38,8 +38,9 @@ class ProductDenormalizer implements DenormalizerInterface, DenormalizerAwareInt
             $this->logger?->debug('FORMAT : '. var_export($format, true));
             $this->logger?->debug('CONTEXT : '. var_export($context, true));
 
-            $product = $this->extractObjectToPopulate($type, $context) ?? new $type();
-            $product->denormalize($this->denormalizer, $data, $format, $context);
+            //$product = $this->extractObjectToPopulate($type, $context) ?? new $type();
+            $product = $this->denormalizer::denormalize($data, $type, $format, $context);
+            //$product->denormalize($this->denormalizer, $data, $format, $context);
             //$product = $this->denormalizer->denormalize($data, $type, $format, $context);
             //$product = $odn->denormalize($data, $type, $format, $context);
         } catch (\Throwable $exception) {
