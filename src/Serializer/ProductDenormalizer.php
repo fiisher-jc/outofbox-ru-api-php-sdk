@@ -53,6 +53,7 @@ class ProductDenormalizer implements DenormalizerInterface, DenormalizerAwareInt
         }
 
         $this->logger?->debug('ProductDenormalizer: after dernomalize - 1');
+        $this->logger?->debug(var_export($product, true));
 
         $images = $product->getImages();
 
