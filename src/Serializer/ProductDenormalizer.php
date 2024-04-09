@@ -27,7 +27,7 @@ class ProductDenormalizer implements DenormalizerInterface, DenormalizerAwareInt
      */
     public function denormalize($data, $type, $format = null, array $context = []): mixed
     {
-        //$odn = new ObjectNormalizer(null, null, null, new PhpDocExtractor());
+        $odn = new ObjectNormalizer(null, null, null, new PhpDocExtractor());
 
         /** @var Product $product */
         //$product = parent::denormalize($data, $type, $format, $context);
@@ -39,10 +39,10 @@ class ProductDenormalizer implements DenormalizerInterface, DenormalizerAwareInt
             $this->logger?->debug('CONTEXT : '. var_export($context, true));
 
             //$product = $this->extractObjectToPopulate($type, $context) ?? new $type();
-            $product = $this->denormalizer::denormalize($data, $type, $format, $context);
+            $product = $odn->denormalize($data, $type, $format, $context);
+            //$product = $this->denormalizer::denormalize($data, $type, $format, $context);
             //$product->denormalize($this->denormalizer, $data, $format, $context);
             //$product = $this->denormalizer->denormalize($data, $type, $format, $context);
-            //$product = $odn->denormalize($data, $type, $format, $context);
         } catch (\Throwable $exception) {
             $this->logger?->debug('ProductDenormalizer: denormalize error: '.$exception->getMessage());
         }
