@@ -214,22 +214,22 @@ class OutofboxAPIClient implements LoggerAwareInterface
      */
     protected function createAPIResponse(\Psr\Http\Message\ResponseInterface $response, $apiResponseClass)
     {
-        $this->logger->debug('API RESPONSE 1');
+        //$this->logger->debug('API RESPONSE 1');
         $response_string = (string)$response->getBody();
         $response_data = json_decode($response_string, true);
-        $this->logger->debug('API RESPONSE 2');
+        //$this->logger->debug('API RESPONSE 2');
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->logger->debug('Invalid response data');
             throw new OutofboxAPIException('Invalid response data');
         }
-        $this->logger->debug('API RESPONSE 3');
+        //$this->logger->debug('API RESPONSE 3');
 
         if (isset($response_data['code'], $response_data['message'])) {
             $this->logger->debug('Outofbox API Error: ' . $response_data['message'], $response_data['code']);
             throw new OutofboxAPIException('Outofbox API Error: ' . $response_data['message'], $response_data['code']);
         }
-        $this->logger->debug('API RESPONSE 4');
+        //$this->logger->debug('API RESPONSE 4');
 
         try {
             /** @var ResponseInterface $response */
@@ -242,19 +242,16 @@ class OutofboxAPIClient implements LoggerAwareInterface
         } catch (RuntimeException $e) {
             $this->logger->debug('Unable to decode response: ' . $e->getMessage());
             throw new OutofboxAPIException('Unable to decode response: ' . $e->getMessage());
-        }
-        catch(LogicException $exception ){
+        } catch(LogicException $exception ){
             $this->logger->debug('Unable to decode response due logick errors: ' . $exception->getMessage());
-        }
-        catch (\Exception $exception) {
+        } catch (\Exception $exception) {
             $this->logger->debug('Unable to decode response due errors: ' . $exception->getMessage());
-        }
-        catch(\Throwable $exception){
+        } catch(\Throwable $exception){
             $this->logger->debug('Unable to decode response due errors2: ' . $exception->getMessage());
         }
 
 
-        $this->logger->debug('API RESPONSE 5');
+        //$this->logger->debug('API RESPONSE 5');
         return $response;
     }
 

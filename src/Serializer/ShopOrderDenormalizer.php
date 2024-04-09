@@ -8,9 +8,11 @@ use Outofbox\OutofboxSDK\Model\ShopOrder;
 use Outofbox\OutofboxSDK\Model\ShopOrderItem;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 #[AllowDynamicProperties]
 class ShopOrderDenormalizer implements DenormalizerInterface, DenormalizerAwareInterface, LoggerAwareInterface
@@ -22,10 +24,12 @@ class ShopOrderDenormalizer implements DenormalizerInterface, DenormalizerAwareI
      */
     public function denormalize($data, $type, $format = null, array $context = []): mixed
     {
+        $odn = new ObjectNormalizer(null, null, null, new ReflectionExtractor());
+
         /** @var ShopOrder $shopOrder */
         //$shopOrder = parent::denormalize($data, $type, $format, $context);
-        $this->logger?->debug('ShopOrderDenormalizer: start dernomalize');
-        $shopOrder = $this->denormalizer->denormalize($data, $type, $format, $context);
+        //$this->logger?->debug('ShopOrderDenormalizer: start dernomalize');
+        $shopOrder = $odn->denormalize($data, $type, $format, $context);
 
         if (isset($data['delivery_method'])) {
             $dictionaryValue = new DictionaryValue();
@@ -46,7 +50,7 @@ class ShopOrderDenormalizer implements DenormalizerInterface, DenormalizerAwareI
             if ($shopOrderItem instanceof ShopOrderItem) {
                 $items[] = $shopOrderItem;
             } elseif (is_array($shopOrderItem)) {
-                $items[] = $this->denormalizer->denormalize($shopOrderItem, ShopOrderItem::class, 'json');
+                $items[] = $odn->denormalize($shopOrderItem, ShopOrderItem::class, 'json');
             } else {
                 $items[] = null;
             }
